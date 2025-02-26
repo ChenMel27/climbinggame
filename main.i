@@ -1288,7 +1288,12 @@ extern const unsigned short startPal[256];
 
 
 # 1 "boulder.h" 1
-# 10 "boulder.h"
+
+
+
+
+
+
 typedef struct {
     int x, y;
     int oldX, oldY;
@@ -1296,11 +1301,12 @@ typedef struct {
     int width, height;
     unsigned short color;
 } BOULDER;
-# 28 "boulder.h"
-extern BOULDER boulders[5];
 
 
 
+
+
+extern BOULDER boulders[2];
 
 
 void initBoulders();
@@ -1309,15 +1315,59 @@ void drawBoulders();
 int checkBoulderCollision(int x, int y, int width, int height);
 # 5 "game.h" 2
 # 1 "hold.h" 1
-# 10 "hold.h"
+
+
+
+
+# 1 "pinch.h" 1
+# 21 "pinch.h"
+extern const unsigned short pinchBitmap[512];
+
+
+extern const unsigned short pinchPal[256];
+# 6 "hold.h" 2
+# 1 "crimp.h" 1
+# 21 "crimp.h"
+extern const unsigned short crimpBitmap[512];
+
+
+extern const unsigned short crimpPal[256];
+# 7 "hold.h" 2
+# 1 "jug.h" 1
+# 21 "jug.h"
+extern const unsigned short jugBitmap[512];
+
+
+extern const unsigned short jugPal[256];
+# 8 "hold.h" 2
+# 1 "sloper.h" 1
+# 21 "sloper.h"
+extern const unsigned short sloperBitmap[512];
+
+
+extern const unsigned short sloperPal[256];
+# 9 "hold.h" 2
+
+
+
+
+
+typedef enum {
+    PINCH,
+    CRIMP,
+    JUG,
+    SLOPER
+} HoldType;
+
 typedef struct {
     int x, y;
     int width, height;
-    unsigned short color;
     int active;
+    HoldType type;
+    int points;
 } HOLD;
-# 27 "hold.h"
-extern HOLD holds[10];
+# 39 "hold.h"
+extern HOLD holds[4];
 
 
 
@@ -1341,6 +1391,7 @@ typedef struct {
 # 28 "game.h"
 extern CLIMBER climber;
 extern int score;
+extern int round;
 
 
 
@@ -1353,30 +1404,24 @@ void drawGame();
 void initClimber();
 void updateClimber();
 void drawClimber();
+void resetGame();
+int checkWinCondition();
 # 7 "main.c" 2
 
 
 
-
-
-
-void initialize();
-void goToStart();
-void start();
-void goToGame();
-void game();
-void goToPause();
-void pause();
-void goToWin();
-void win();
-void goToLose();
-void lose();
-void flipPage();
-void updateGame();
-void drawGame();
-
-
-
+void initialize(void);
+void goToStart(void);
+void start(void);
+void goToGame(void);
+void game(void);
+void goToPause(void);
+void pause(void);
+void goToWin(void);
+void win(void);
+void goToLose(void);
+void lose(void);
+void flipPage(void);
 
 
 char buffer[41];
@@ -1399,14 +1444,12 @@ unsigned short oldButtons;
 
 
 
-int main() {
-    initialize();
 
+int main(void) {
+    initialize();
     while (1) {
         oldButtons = buttons;
         buttons = (*(volatile unsigned short*) 0x04000130);
-
-
         switch (state) {
             case START: start(); break;
             case GAME: game(); break;
@@ -1420,14 +1463,15 @@ int main() {
 
 
 
+void initialize(void) {
 
-void initialize() {
     (*(volatile unsigned short*) 0x04000000) = ((4) & 7) | (1 << (8 + (2 % 4))) | (1 << 4);
-
     buttons = (*(volatile unsigned short*) 0x04000130);
     oldButtons = 0;
 
+
     initGame();
+
 
     goToStart();
 }
@@ -1435,17 +1479,23 @@ void initialize() {
 
 
 
+void goToStart(void) {
 
-void goToStart() {
+    score = 0;
+
+    resetGame();
+
+
     DMANow(3, (volatile void*)startPal, ((unsigned short*) 0x05000000), 256 | (1 << 31));
     drawFullscreenImage4(startBitmap);
+    drawString4(10, 20, "Train like Adam Ondra", (((31) & 31) | ((31) & 31) << 5 | ((31) & 31) << 10));
+    drawString4(10, 50, "On belay?", (((31) & 31) | ((31) & 31) << 5 | ((31) & 31) << 10));
     waitForVBlank();
     flipPage();
-
     state = START;
 }
 
-void start() {
+void start(void) {
     waitForVBlank();
     if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
         fillScreen4((((0) & 31) | ((0) & 31) << 5 | ((0) & 31) << 10));
@@ -1454,16 +1504,15 @@ void start() {
     }
 }
 
-void goToGame() {
+void goToGame(void) {
     waitForVBlank();
     fillScreen4((((0) & 31) | ((0) & 31) << 5 | ((0) & 31) << 10));
     flipPage();
-
     initGame();
     state = GAME;
 }
 
-void game() {
+void game(void) {
     updateGame();
     drawGame();
     waitForVBlank();
@@ -1474,13 +1523,13 @@ void game() {
     }
 }
 
-void goToPause() {
+void goToPause(void) {
     waitForVBlank();
     flipPage();
     state = PAUSE;
 }
 
-void pause() {
+void pause(void) {
     waitForVBlank();
     if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
         goToGame();
@@ -1489,27 +1538,34 @@ void pause() {
     }
 }
 
-void goToWin() {
+void goToWin(void) {
     waitForVBlank();
     flipPage();
     state = WIN;
+
+    drawString4(50, 80, "WIN! Press START to continue", 1);
+    waitForVBlank();
 }
 
-void win() {
+void win(void) {
     waitForVBlank();
+
     if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
-        goToStart();
+         state = GAME;
     }
 }
 
-void goToLose() {
+void goToLose(void) {
     waitForVBlank();
     flipPage();
     state = LOSE;
 }
 
-void lose() {
+void lose(void) {
     waitForVBlank();
+    fillScreen4((((31) & 31) | ((0) & 31) << 5 | ((0) & 31) << 10));
+    flipPage();
+
     if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
         goToStart();
     }
@@ -1518,8 +1574,7 @@ void lose() {
 
 
 
-
-void flipPage() {
+void flipPage(void) {
     if ((*(volatile unsigned short*) 0x04000000) & (1 << 4)) {
         videoBuffer = ((unsigned short*) 0x0600A000);
     } else {

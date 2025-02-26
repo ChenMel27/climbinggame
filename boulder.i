@@ -60,7 +60,7 @@ typedef struct {
 
 
 
-extern BOULDER boulders[5];
+extern BOULDER boulders[2];
 
 
 void initBoulders();
@@ -81,24 +81,134 @@ void drawChar4(int x, int y, char ch, u8 colorIndex);
 void drawString4(int x, int y, char* str, u8 colorIndex);
 # 3 "boulder.c" 2
 
+# 1 "game.h" 1
 
-BOULDER boulders[5];
+
+
+
+# 1 "hold.h" 1
+
+
+
+
+# 1 "pinch.h" 1
+# 21 "pinch.h"
+extern const unsigned short pinchBitmap[512];
+
+
+extern const unsigned short pinchPal[256];
+# 6 "hold.h" 2
+# 1 "crimp.h" 1
+# 21 "crimp.h"
+extern const unsigned short crimpBitmap[512];
+
+
+extern const unsigned short crimpPal[256];
+# 7 "hold.h" 2
+# 1 "jug.h" 1
+# 21 "jug.h"
+extern const unsigned short jugBitmap[512];
+
+
+extern const unsigned short jugPal[256];
+# 8 "hold.h" 2
+# 1 "sloper.h" 1
+# 21 "sloper.h"
+extern const unsigned short sloperBitmap[512];
+
+
+extern const unsigned short sloperPal[256];
+# 9 "hold.h" 2
+
+
+
+
+
+typedef enum {
+    PINCH,
+    CRIMP,
+    JUG,
+    SLOPER
+} HoldType;
+
+typedef struct {
+    int x, y;
+    int width, height;
+    int active;
+    HoldType type;
+    int points;
+} HOLD;
+# 39 "hold.h"
+extern HOLD holds[4];
+
+
+
+
+
+void initHolds();
+void updateHolds();
+void drawHolds();
+# 6 "game.h" 2
+
+
+
+
+
+typedef struct {
+    int x, y;
+    int oldX, oldY;
+    int dx, dy;
+    int width, height;
+} CLIMBER;
+# 28 "game.h"
+extern CLIMBER climber;
+extern int score;
+extern int round;
+
+
+
+
+
+void initGame();
+void updateGame();
+void drawGame();
+
+void initClimber();
+void updateClimber();
+void drawClimber();
+void resetGame();
+int checkWinCondition();
+# 5 "boulder.c" 2
+
+BOULDER boulders[2];
+
+
+
 
 void initBoulders() {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 2; i++) {
         boulders[i].x = rand() % 240;
         boulders[i].y = rand() % 30;
         boulders[i].dx = 0;
         boulders[i].dy = 1 + (rand() % 2);
         boulders[i].width = 3;
         boulders[i].height = 3;
-        boulders[i].color = (((15) & 31) | ((15) & 31) << 5 | ((15) & 31) << 10);
+        boulders[i].color = (((13) & 31) | ((13) & 31) << 5 | ((13) & 31) << 10);
     }
 }
 
+
+
+
 void updateBoulders() {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 2; i++) {
         boulders[i].y += boulders[i].dy;
+
+
+        if (checkBoulderCollision(climber.x + 5, climber.y, 16, 32)) {
+            goToLose();
+            return;
+        }
 
 
         if (boulders[i].y > 160) {
@@ -108,8 +218,11 @@ void updateBoulders() {
     }
 }
 
+
+
+
 int checkBoulderCollision(int x, int y, int width, int height) {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 2; i++) {
         if (x < boulders[i].x + boulders[i].width &&
             x + width > boulders[i].x &&
             y < boulders[i].y + boulders[i].height &&
@@ -120,8 +233,11 @@ int checkBoulderCollision(int x, int y, int width, int height) {
     return 0;
 }
 
+
+
+
 void drawBoulders() {
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 2; i++) {
         drawRect4(boulders[i].x, boulders[i].y, boulders[i].width, boulders[i].height, boulders[i].color);
     }
 }

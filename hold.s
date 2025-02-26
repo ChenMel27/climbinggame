@@ -19,64 +19,105 @@
 	.type	initHolds, %function
 initHolds:
 	@ Function supports interworking.
-	@ args = 0, pretend = 0, frame = 0
+	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 0, uses_anonymous_args = 0
-	push	{r4, r5, r6, r7, r8, lr}
-	mov	r8, #40
-	mov	r5, #10
-	ldr	r7, .L8
-	ldr	r4, .L8+4
-	ldr	r6, .L8+8
-.L3:
+	push	{r4, r5, r6, r7, r8, r9, r10, lr}
+	sub	sp, sp, #16
+	mov	ip, sp
+	mov	r5, #32
+	mov	r6, ip
+	mov	r9, #1
+	ldr	r3, .L10
+	ldm	r3, {r0, r1, r2, r3}
+	stm	ip, {r0, r1, r2, r3}
+	ldr	r10, .L10+4
+	ldr	r4, .L10+8
+	ldr	r8, .L10+12
+	add	r7, r10, #112
+.L6:
 	mov	lr, pc
 	bx	r4
-	smull	r3, r2, r6, r0
+	smull	r3, r2, r8, r0
 	asr	r3, r0, #31
-	add	r2, r2, r0
-	rsb	r3, r3, r2, asr #7
-	rsb	r3, r3, r3, lsl #4
+	rsb	r3, r3, r2, asr #6
+	add	r2, r3, r3, lsl #1
+	add	r3, r3, r2, lsl #2
+	ldr	r2, [r6], #4
 	sub	r0, r0, r3, lsl #4
-	str	r8, [r7, #4]
-	str	r5, [r7, #8]
-	str	r5, [r7, #12]
-	str	r0, [r7]
+	stm	r10, {r0, r2}
+	str	r5, [r10, #8]
+	str	r5, [r10, #12]
+	str	r9, [r10, #16]
 	mov	lr, pc
 	bx	r4
+	rsbs	r3, r0, #0
+	and	r3, r3, #3
+	and	r0, r0, #3
+	rsbpl	r0, r3, #0
+	and	r0, r0, #255
 	cmp	r0, #0
-	and	r0, r0, #1
-	mov	r2, r0
-	rsblt	r2, r0, #0
-	cmp	r0, #0
-	movne	r3, #992
-	moveq	r3, #31
-	add	r8, r8, #15
-	cmp	r8, #190
-	str	r2, [r7, #20]
-	strh	r3, [r7, #16]	@ movhi
-	add	r7, r7, #24
-	bne	.L3
-	pop	{r4, r5, r6, r7, r8, lr}
+	moveq	r3, #5
+	strb	r0, [r10, #20]
+	streq	r3, [r10, #24]
+	beq	.L3
+	cmp	r0, #1
+	moveq	r3, #10
+	streq	r3, [r10, #24]
+	beq	.L3
+	cmp	r0, #2
+	moveq	r3, #15
+	streq	r3, [r10, #24]
+	beq	.L3
+	cmp	r0, #3
+	moveq	r3, #20
+	streq	r3, [r10, #24]
+.L3:
+	add	r10, r10, #28
+	cmp	r10, r7
+	bne	.L6
+	ldr	r4, .L10+16
+	mov	r2, #83886080
+	mov	r0, #3
+	ldr	r3, .L10+20
+	ldr	r1, .L10+24
+	mov	lr, pc
+	bx	r4
+	mov	r2, #83886080
+	mov	r0, #3
+	ldr	r3, .L10+20
+	ldr	r1, .L10+28
+	mov	lr, pc
+	bx	r4
+	mov	r2, #83886080
+	mov	r0, #3
+	ldr	r3, .L10+20
+	ldr	r1, .L10+32
+	mov	lr, pc
+	bx	r4
+	mov	r2, #83886080
+	mov	r0, #3
+	ldr	r3, .L10+20
+	ldr	r1, .L10+36
+	mov	lr, pc
+	bx	r4
+	add	sp, sp, #16
+	@ sp needed
+	pop	{r4, r5, r6, r7, r8, r9, r10, lr}
 	bx	lr
-.L9:
+.L11:
 	.align	2
-.L8:
+.L10:
+	.word	.LANCHOR0
 	.word	holds
 	.word	rand
-	.word	-2004318071
+	.word	1321528399
+	.word	DMANow
+	.word	-2147483392
+	.word	pinchPal
+	.word	crimpPal
+	.word	jugPal
+	.word	sloperPal
 	.size	initHolds, .-initHolds
-	.align	2
-	.global	updateHolds
-	.syntax unified
-	.arm
-	.fpu softvfp
-	.type	updateHolds, %function
-updateHolds:
-	@ Function supports interworking.
-	@ args = 0, pretend = 0, frame = 0
-	@ frame_needed = 0, uses_anonymous_args = 0
-	@ link register save eliminated.
-	bx	lr
-	.size	updateHolds, .-updateHolds
 	.align	2
 	.global	drawHolds
 	.syntax unified
@@ -87,30 +128,66 @@ drawHolds:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 0, uses_anonymous_args = 0
-	push	{r4, r5, r6, lr}
-	ldr	r4, .L15
-	ldr	r6, .L15+4
-	sub	sp, sp, #8
-	add	r5, r4, #240
-.L12:
-	ldrb	r2, [r4, #16]	@ zero_extendqisi2
-	ldr	r3, [r4, #12]
-	str	r2, [sp]
-	ldm	r4, {r0, r1, r2}
-	add	r4, r4, #24
-	mov	lr, pc
-	bx	r6
-	cmp	r4, r5
-	bne	.L12
-	add	sp, sp, #8
-	@ sp needed
-	pop	{r4, r5, r6, lr}
-	bx	lr
-.L16:
-	.align	2
+	push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+	mov	r4, #0
+	mov	r8, r4
+	ldr	r5, .L21
+	ldr	r6, .L21+4
+	ldr	r7, .L21+8
+	ldr	r9, .L21+12
+	ldr	fp, .L21+16
+	ldr	r10, .L21+20
+	sub	sp, sp, #12
 .L15:
+	ldr	r3, [r6]
+	cmp	r3, r4
+	bgt	.L13
+	ldrb	r3, [r5, #20]	@ zero_extendqisi2
+	cmp	r3, #0
+	moveq	r2, r9
+	beq	.L14
+	cmp	r3, #1
+	beq	.L17
+	cmp	r3, #2
+	moveq	r2, fp
+	movne	r2, r10
+.L14:
+	mov	r3, #32
+	stm	sp, {r2, r8}
+	ldm	r5, {r0, r1}
+	mov	r2, r3
+	mov	lr, pc
+	bx	r7
+.L13:
+	add	r4, r4, #1
+	cmp	r4, #4
+	add	r5, r5, #28
+	bne	.L15
+	add	sp, sp, #12
+	@ sp needed
+	pop	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+	bx	lr
+.L17:
+	ldr	r2, .L21+24
+	b	.L14
+.L22:
+	.align	2
+.L21:
 	.word	holds
-	.word	drawRect4
+	.word	collectedHolds
+	.word	drawImage4
+	.word	pinchBitmap
+	.word	jugBitmap
+	.word	sloperBitmap
+	.word	crimpBitmap
 	.size	drawHolds, .-drawHolds
-	.comm	holds,240,4
+	.comm	holds,112,4
+	.section	.rodata
+	.align	2
+	.set	.LANCHOR0,. + 0
+.LC0:
+	.word	125
+	.word	100
+	.word	80
+	.word	60
 	.ident	"GCC: (devkitARM release 53) 9.1.0"

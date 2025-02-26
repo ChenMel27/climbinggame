@@ -1,26 +1,49 @@
 #ifndef HOLD_H
 #define HOLD_H
 
+#include "gba.h"
+#include "pinch.h"
+#include "crimp.h"
+#include "jug.h"
+#include "sloper.h"
+
+// ----------------------------------------
 // Structs
+// ----------------------------------------
+
+typedef enum {
+    PINCH,
+    CRIMP,
+    JUG,
+    SLOPER
+} HoldType;
+
 typedef struct {
-    int x;
-    int y;
+    int x, y;
     int width, height;
-    // Color of hold (active = green, inactive = red)
-    unsigned short color;
-    // 1 = Active (green), 0 = Inactive (red)
     int active;
+    HoldType type;
+    int points;
 } HOLD;
 
+// ----------------------------------------
 // Constants
-#define HOLDCOUNT 10  // Number of holds
+// ----------------------------------------
 
+#define HOLDCOUNT 4  // ✅ Ensure we are using only 4 holds
+
+// ----------------------------------------
 // Global Variables
-extern HOLD holds[HOLDCOUNT];
+// ----------------------------------------
 
+extern HOLD holds[HOLDCOUNT];  // ✅ Declare `holds` properly
+
+// ----------------------------------------
 // Function Prototypes
+// ----------------------------------------
+
 void initHolds();
 void updateHolds();
 void drawHolds();
 
-#endif
+#endif // HOLD_H

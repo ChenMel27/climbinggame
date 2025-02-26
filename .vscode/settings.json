@@ -6,6 +6,7 @@
         "logic.h": "c",
         "stdio.h": "c",
         "start.h": "c",
-        "game.h": "c"
+        "game.h": "c",
+        "hold.h": "c"
     }
 }

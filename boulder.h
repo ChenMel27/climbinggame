@@ -13,7 +13,7 @@ typedef struct {
 } BOULDER;
 
 // Constants
-#define BOULDERCOUNT 5  // Number of boulders
+#define BOULDERCOUNT 2  // Number of boulders
 
 // Global Variables
 extern BOULDER boulders[BOULDERCOUNT];

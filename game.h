@@ -27,6 +27,7 @@ typedef struct {
 
 extern CLIMBER climber;
 extern int score;
+extern int round;  // ✅ Track game rounds
 
 // ----------------------------------------
 // Function Prototypes
@@ -39,5 +40,7 @@ void drawGame();
 void initClimber();
 void updateClimber();
 void drawClimber();
+void resetGame();
+int checkWinCondition();  // ✅ New function to check if player wins the round
 
 #endif // GAME_H
