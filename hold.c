@@ -5,23 +5,15 @@
 #include "crimp.h"
 #include "jug.h"
 #include "sloper.h"
-#include <stdlib.h>  // For rand()
-
-// Note: To allow hold.c to know the current sequential index,
-// add the following line in hold.h:
-//   extern int collectedHolds;
+#include <stdlib.h>
 
 HOLD holds[HOLDCOUNT];
 extern int collectedHolds;
 
-// ----------------------------------------
-// Initialize Holds (Assuming HOLDCOUNT is 6)
-// ----------------------------------------
-// All holds are set to active so that they are drawn.
-// Their Y-positions are preset so that index 0 is at the bottom.
+// All holds are set to active to be drawn
+// y-positions pre-set
 void initHolds() {
     int presetYValues[HOLDCOUNT] = {125, 100, 80, 60, 25, 10};
-
     for (int i = 0; i < HOLDCOUNT; i++) {
         holds[i].x = rand() % (SCREENWIDTH - 32);
         holds[i].y = presetYValues[i];
@@ -39,36 +31,34 @@ void initHolds() {
             holds[i].points = 20;
     }
     
-
-    // Load all hold palettes.
+    // loads hold palettes.
     DMANow(3, (volatile void*)pinchPal, BG_PALETTE, 256 | DMA_ON);
     DMANow(3, (volatile void*)crimpPal, BG_PALETTE, 256 | DMA_ON);
     DMANow(3, (volatile void*)jugPal, BG_PALETTE, 256 | DMA_ON);
     DMANow(3, (volatile void*)sloperPal, BG_PALETTE, 256 | DMA_ON);
 }
 
-// ----------------------------------------
-// Draw Holds
-// ----------------------------------------
-// Draw every hold whose index is not less than collectedHolds so that
-// holds are collected sequentially (from bottom to top).
+// Functionality ia to draw every hold that has an 
+// index that is NOT less than collectedHolds so that
+// holds are collected sequentially (from bottom to top) / (largest y to
+// smallest y).
 void drawHolds() {
     for (int i = 0; i < HOLDCOUNT; i++) {
-        // Skip holds that have already been collected.
+        // skip holds that have already been hit
         if (i < collectedHolds)
             continue;
             
         const unsigned short *sprite;
         int width = 32, height = 32;
-        if (holds[i].type == PINCH)
+        if (holds[i].type == PINCH) {
             sprite = pinchBitmap;
-        else if (holds[i].type == CRIMP)
+        } else if (holds[i].type == CRIMP) {
             sprite = crimpBitmap;
-        else if (holds[i].type == JUG)
+        } else if (holds[i].type == JUG) {
             sprite = jugBitmap;
-        else
+        } else {
             sprite = sloperBitmap;
-
+        }
         drawImage4(holds[i].x, holds[i].y, width, height, (const u8*)sprite, BLACK);
     }
 }

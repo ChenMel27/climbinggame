@@ -51,20 +51,22 @@ typedef volatile struct {
 void DMANow(int channel, volatile void* src, volatile void* dest, unsigned int ctrl);
 # 5 "boulder.h" 2
 
-
 typedef struct {
-    int x, y;
-    int oldX, oldY;
-    int dx, dy;
-    int width, height;
+    int x;
+    int y;
+    int oldX;
+    int oldY;
+    int dx;
+    int dy;
+    int width;
+    int height;
     unsigned short color;
 } BOULDER;
 
 
 
 
-
-extern BOULDER boulders[2];
+extern BOULDER boulders[3];
 
 
 void initBoulders();
@@ -106,10 +108,6 @@ extern const unsigned short sloperBitmap[512];
 extern const unsigned short sloperPal[256];
 # 9 "hold.h" 2
 
-
-
-
-
 typedef enum {
     PINCH,
     CRIMP,
@@ -122,48 +120,44 @@ typedef struct {
     int width, height;
     int active;
     HoldType type;
+
     int points;
 } HOLD;
-# 39 "hold.h"
-extern HOLD holds[4];
 
 
 
 
+extern HOLD holds[6];
+extern int collectedHolds;
 
 void initHolds();
-void updateHolds();
 void drawHolds();
 # 6 "game.h" 2
 
 
-
-
+extern int score;
+extern int gameRound;
 
 typedef struct {
-    int x, y;
-    int oldX, oldY;
-    int dx, dy;
-    int width, height;
+    int x;
+    int y;
+    int oldX;
+    int oldY;
+    int dx;
+    int dy;
+    int width;
+    int height;
+    int stronger;
 } CLIMBER;
-# 28 "game.h"
 extern CLIMBER climber;
-extern int score;
-extern int round;
-
-
-
-
-
-void initGame();
-void updateGame();
-void drawGame();
-
-void initClimber();
-void updateClimber();
 void drawClimber();
 void resetGame();
 int checkWinCondition();
+void initGame();
+void updateGame();
+void drawGame();
+void initClimber();
+void updateClimber();
 # 2 "game.c" 2
 # 1 "climber.h" 1
 # 21 "climber.h"
@@ -187,6 +181,13 @@ void drawString4(int x, int y, char* str, u8 colorIndex);
 
 
 
+# 1 "stronger.h" 1
+# 21 "stronger.h"
+extern const unsigned short strongerBitmap[512];
+
+
+extern const unsigned short strongerPal[256];
+# 8 "game.c" 2
 # 1 "/opt/devkitpro/devkitARM/arm-none-eabi/include/stdio.h" 1 3
 # 29 "/opt/devkitpro/devkitARM/arm-none-eabi/include/stdio.h" 3
 # 1 "/opt/devkitpro/devkitARM/arm-none-eabi/include/_ansi.h" 1 3
@@ -1229,24 +1230,25 @@ _putchar_unlocked(int _c)
 }
 # 797 "/opt/devkitpro/devkitARM/arm-none-eabi/include/stdio.h" 3
 
-# 8 "game.c" 2
-
+# 9 "game.c" 2
 
 
 # 10 "game.c"
 extern void goToWin(void);
 extern void goToLose(void);
-
-
 CLIMBER climber;
+
 int score = 0;
+int highScore = 0;
+
+
 int gameRound = 1;
+
+
 int collectedHolds = 0;
 
 
 int frameCounter = 0;
-
-
 
 
 
@@ -1257,19 +1259,21 @@ void initClimber() {
     climber.y = 120;
     climber.oldX = climber.x;
     climber.oldY = climber.y;
-    climber.dx = 1;
-    climber.dy = 1;
+    climber.dx = 3;
+    climber.dy = 3;
     climber.width = 32;
     climber.height = 32;
+    climber.stronger = 0;
 }
-
-
 
 
 void updateClimber() {
     frameCounter++;
-    if (frameCounter < 0) return;
+    if (frameCounter < 0) {
+        return;
+    }
     frameCounter = 0;
+
 
     if ((~(buttons) & ((1 << 6))) && climber.y > 0)
         climber.y -= climber.dy;
@@ -1280,9 +1284,6 @@ void updateClimber() {
     if ((~(buttons) & ((1 << 4))) && climber.x < 240 - climber.width)
         climber.x += climber.dx;
 }
-
-
-
 
 void initGame() {
     initClimber();
@@ -1296,22 +1297,16 @@ void initGame() {
 void resetGame() {
     climber.x = 100;
     climber.y = 120;
+    climber.stronger = 0;
     collectedHolds = 0;
     initBoulders();
     initHolds();
 }
-
-
-
-
-
-
+# 88 "game.c"
 int checkWinCondition() {
-    if (collectedHolds < 4) {
-        if (collision(climber.x + 5, climber.y, 16, 28,
-                      holds[collectedHolds].x + 12, holds[collectedHolds].y,
-                      holds[collectedHolds].width - 28, holds[collectedHolds].height - 20)) {
-
+    if (collectedHolds < 6) {
+        if (collision(climber.x + 5, climber.y, 16, 28, holds[collectedHolds].x + 12, holds[collectedHolds].y,
+            holds[collectedHolds].width - 28, holds[collectedHolds].height - 20)) {
             drawRect4(holds[collectedHolds].x, holds[collectedHolds].y,
                       holds[collectedHolds].width, holds[collectedHolds].height, (((15) & 31) | ((15) & 31) << 5 | ((15) & 31) << 10));
             holds[collectedHolds].active = 0;
@@ -1320,41 +1315,47 @@ int checkWinCondition() {
         }
     }
 
-    if (collectedHolds == 4) {
 
+
+
+
+    if (collectedHolds == 6 - 1) {
+        climber.stronger = 1;
+    }
+
+    if (collectedHolds == 6) {
 
         collectedHolds = 0;
         climber.x = 100;
         climber.y = 120;
+
+        highScore = (score > highScore) ? score : highScore;
+
+        climber.stronger = 0;
         initBoulders();
         initHolds();
         gameRound++;
         return 1;
     }
-
     return 0;
 }
 
 
 
-
-
 void updateGame() {
     updateClimber();
-
     if (checkWinCondition()) {
-        goToWin();
+        goToLevelUp();
         return;
     }
 
     updateBoulders();
 
     if (checkBoulderCollision(climber.x + 5, climber.y, 16, 32)) {
+        highScore = (score > highScore) ? score : highScore;
         goToLose();
     }
 }
-
-
 
 
 void drawGame() {
@@ -1376,10 +1377,15 @@ void drawGame() {
 }
 
 
-
-
 void drawClimber() {
-    DMANow(3, (volatile void*)climberPal, ((unsigned short*) 0x05000000), 256 | (0 << 26));
-    drawImage4(climber.x, climber.y, climber.width, climber.height,
-               (const u8*)climberBitmap, climberBitmap[0]);
+
+    if (climber.stronger == 1) {
+        DMANow(3, (volatile void*)strongerPal, ((unsigned short*) 0x05000000), 256 | (0 << 26));
+        drawImage4(climber.x, climber.y, climber.width, climber.height, (const u8*)strongerBitmap, strongerBitmap[0]);
+
+    } else {
+        DMANow(3, (volatile void*)climberPal, ((unsigned short*) 0x05000000), 256 | (0 << 26));
+        drawImage4(climber.x, climber.y, climber.width, climber.height,
+                   (const u8*)climberBitmap, climberBitmap[0]);
+    }
 }

@@ -7,10 +7,6 @@
 #include "jug.h"
 #include "sloper.h"
 
-// ----------------------------------------
-// Structs
-// ----------------------------------------
-
 typedef enum {
     PINCH,
     CRIMP,
@@ -23,27 +19,17 @@ typedef struct {
     int width, height;
     int active;
     HoldType type;
+    // certain holds are worth more
     int points;
 } HOLD;
 
-// ----------------------------------------
-// Constants
-// ----------------------------------------
+// 4 holds at a time - can be built on top of later with levels
+#define HOLDCOUNT 6
 
-#define HOLDCOUNT 4  // ✅ Ensure we are using only 4 holds
-
-// ----------------------------------------
-// Global Variables
-// ----------------------------------------
-
-extern HOLD holds[HOLDCOUNT];  // ✅ Declare `holds` properly
-
-// ----------------------------------------
-// Function Prototypes
-// ----------------------------------------
+extern HOLD holds[HOLDCOUNT];
+extern int collectedHolds;
 
 void initHolds();
-void updateHolds();
 void drawHolds();
 
-#endif // HOLD_H
+#endif

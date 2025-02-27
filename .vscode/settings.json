@@ -7,6 +7,8 @@
         "stdio.h": "c",
         "start.h": "c",
         "game.h": "c",
-        "hold.h": "c"
+        "hold.h": "c",
+        "stronger.h": "c",
+        "sloper.h": "c"
     }
 }

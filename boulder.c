@@ -1,13 +1,12 @@
 #include "boulder.h"
 #include "mode4.h"
 #include "gba.h"
-#include "game.h"  // ✅ Include game.h to access climber and game state
+#include "game.h"
 
-BOULDER boulders[BOULDERCOUNT];  // ✅ Define boulders array
+// Object pooling: of bouldering falling from sky
+BOULDER boulders[BOULDERCOUNT];
 
-// ----------------------------------------
-// Initialize Boulders
-// ----------------------------------------
+// Initalize boulders
 void initBoulders() {
     for (int i = 0; i < BOULDERCOUNT; i++) {
         boulders[i].x = rand() % SCREENWIDTH;
@@ -20,20 +19,17 @@ void initBoulders() {
     }
 }
 
-// ----------------------------------------
-// Update Boulders & Check for Collision
-// ----------------------------------------
+
+// Update + special check for collision
 void updateBoulders() {
     for (int i = 0; i < BOULDERCOUNT; i++) {
         boulders[i].y += boulders[i].dy;
-
-        // ✅ Check if boulder collides with climber
         if (checkBoulderCollision(climber.x + 5, climber.y, 16, 32)) {
-            goToLose();  // ✅ Transition to lose state
-            return;  // Stop checking further
+            goToLose();
+            return;
         }
 
-        // Reset boulder if it reaches the bottom
+        // Reset boulder once out of frame (which is the bottom)
         if (boulders[i].y > SCREENHEIGHT) {
             boulders[i].y = 0;
             boulders[i].x = rand() % SCREENWIDTH;
@@ -41,24 +37,21 @@ void updateBoulders() {
     }
 }
 
-// ----------------------------------------
-// Check Collision with Climber
-// ----------------------------------------
+// Helper func for the boulder / climber collition
 int checkBoulderCollision(int x, int y, int width, int height) {
     for (int i = 0; i < BOULDERCOUNT; i++) {
         if (x < boulders[i].x + boulders[i].width &&
             x + width > boulders[i].x &&
             y < boulders[i].y + boulders[i].height &&
             y + height > boulders[i].y) {
-            return 1;  // ✅ Collision detected
+            return 1;
         }
     }
     return 0;
 }
 
-// ----------------------------------------
-// Draw Boulders
-// ----------------------------------------
+// Draw the simple boulder shape
+// Can be built on top of later
 void drawBoulders() {
     for (int i = 0; i < BOULDERCOUNT; i++) {
         drawRect4(boulders[i].x, boulders[i].y, boulders[i].width, boulders[i].height, boulders[i].color);

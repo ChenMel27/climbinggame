@@ -5,173 +5,255 @@
 #include "start.h"
 #include "game.h"
 #include "boulder.h"
+#include "losebg.h"
+#include "climber.h"
 
-// Function Prototypes
-void initialize(void);
-void goToStart(void);
-void start(void);
-void goToGame(void);
-void game(void);
-void goToPause(void);
-void pause(void);
-void goToWin(void);
-void win(void);
-void goToLose(void);
-void lose(void);
-void flipPage(void);
-  
-// Global text buffer
+void initialize();
+void goToStart();
+void start();
+void goToGame();
+void resumeGame();
+void game();
+void goToPause();
+void pause();
+void goToLevelUp();
+void levelUp();
+void goToWin();
+void win();
+void goToLose();
+void lose();
+void scoreboard();
+void flipPage();
+
 char buffer[41];
 
-// Game state definitions
+// In game.c
+extern int score;
+extern int highScore;
+
+// Game states
 enum {
     START,
     GAME,
     PAUSE,
+    // Increase rounds
+    LEVEL_UP,
     WIN,
-    LOSE
+    LOSE,
+    // Extra credit highest score
+    SCOREBOARD
 };
 int state;
 
-// Buttons
 unsigned short buttons;
 unsigned short oldButtons;
 
-// Color definitions (using palette indices for Mode 4)
-#define BG_COLOR    10    // Background color index
-#define TEXT_COLOR  1     // Text color index
+#define BG_COLOR 10
+#define TEXT_COLOR 1
 
-// main() - Entry point
-int main(void) {
+int main() {
     initialize();
     while (1) {
         oldButtons = buttons;
         buttons = REG_BUTTONS;
         switch (state) {
-            case START:  start(); break;
-            case GAME:   game(); break;
-            case PAUSE:  pause(); break;
-            case WIN:    win(); break;
-            case LOSE:   lose(); break;
+            case START: start(); break;
+            case GAME: game(); break;
+            case PAUSE: pause(); break;
+            case LEVEL_UP: levelUp(); break;
+            case WIN: win(); break;
+            case LOSE: lose(); break;
+            case SCOREBOARD: scoreboard(); break;
         }
     }
 }
 
-// ----------------------------------------
-// Initialization Functions
-// ----------------------------------------
-void initialize(void) {
-    // Set video mode to Mode 4, enable background 2, and set up page flipping.
+void initialize() {
     REG_DISPCTL = MODE(4) | BG_ENABLE(2) | DISP_BACKBUFFER;
     buttons = REG_BUTTONS;
     oldButtons = 0;
-    
-    // Initialize all game objects.
     initGame();
     
-    // Start at the start screen.
+    // Go to start
     goToStart();
 }
 
-// ----------------------------------------
-// Game State Functions
-// ----------------------------------------
-void goToStart(void) {
-    // Reset game completely for a new play session.
+void goToStart() {
+    // Reset game
     score = 0;
-    // (If you want to completely reset the round, you may also reset gameRound here.)
     resetGame();
     
-    // Display the start screen.
+    // Mountain start screen (load pal and display)
     DMANow(3, (volatile void*)startPal, BG_PALETTE, 256 | DMA_ON);
     drawFullscreenImage4(startBitmap);
+
+    // Text
     drawString4(10, 20, "Train like Adam Ondra", WHITE);
     drawString4(10, 50, "On belay?", WHITE);
+
     waitForVBlank();
     flipPage();
+
     state = START;
 }
 
-void start(void) {
+void start() {
     waitForVBlank();
     if (BUTTON_PRESSED(BUTTON_START)) {
-        fillScreen4(BLACK);  // Clear the screen to prevent flicker.
+        fillScreen4(BLACK);
         flipPage();
         goToGame();
     }
 }
 
-void goToGame(void) {
+void scoreboard() {
+    char buffer[41];
+    fillScreen4(BLACK);
+    
+    // Show score board
+    sprintf(buffer, "Score: %d", score);
+    drawString4(10, 10, buffer, WHITE);
+    sprintf(buffer, "High Score: %d", highScore);
+    drawString4(10, 30, buffer, WHITE);
+    drawString4(10, 50, "Press START to play again", WHITE);
+    
+    waitForVBlank();
+    flipPage();
+    
+    // Go to game if start is pressed
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        goToGame();
+    }
+}
+
+void goToGame() {
     waitForVBlank();
     fillScreen4(BLACK);
     flipPage();
-    initGame();  // Reset game variables (climber, boulders, holds) for a new session or round.
+    initGame();
     state = GAME;
 }
 
-void game(void) {
+// Resumes the game from pause AND / level up without resetting game variables.
+void resumeGame() {
+    waitForVBlank();
+    flipPage();
+    state = GAME;
+}
+
+void game() {
     updateGame();
     drawGame();
     waitForVBlank();
     flipPage();
     
+    if (0) {
+        goToLevelUp();
+    }
+    
     if (BUTTON_PRESSED(BUTTON_START)) {
-        goToPause();
+        goToPause();  // Pause the game when START is pressed.
     }
 }
 
-void goToPause(void) {
+void goToPause() {
     waitForVBlank();
     flipPage();
     state = PAUSE;
 }
 
-void pause(void) {
+void pause() {
+    fillScreen4(BLACK);
+    drawString4(80, 60, "Paused", WHITE);
     waitForVBlank();
+    flipPage();
+    
+    // In pause u can resumes the game.
     if (BUTTON_PRESSED(BUTTON_START)) {
-        goToGame();
-    } else if (BUTTON_PRESSED(BUTTON_SELECT)) {
-        goToStart();
+        resumeGame();
+    }
+    // No scoreboard transition from pause.
+}
+
+void goToLevelUp() {
+    waitForVBlank();
+    flipPage();
+    state = LEVEL_UP;
+}
+
+void levelUp() {
+    waitForVBlank();
+    fillScreen4(BLACK);
+    drawString4(10, 80, "Flashed! Press START for the next round.", WHITE);
+    flipPage();
+
+    if (BUTTON_PRESSED(BUTTON_START)) {
+        resumeGame();
     }
 }
 
-void goToWin(void) {
+void goToWin() {
     waitForVBlank();
     flipPage();
     state = WIN;
-    // Draw a win message.
-    drawString4(50, 80, "WIN! Press START to continue", TEXT_COLOR);
     waitForVBlank();
 }
 
-void win(void) {
+void win() {
     waitForVBlank();
-    // When the player presses START on the win screen, simply resume game mode.
     if (BUTTON_PRESSED(BUTTON_START)) {
          state = GAME;
     }
 }
 
-void goToLose(void) {
+void goToLose() {
     waitForVBlank();
     flipPage();
     state = LOSE;
 }
 
-void lose(void) {
+void lose() {
+    // fixed position for the falling animation
+    const int fallPositions[3] = { 10, 60, 100 };
+    // Frame count for each animations
+    const int delayFrames = 15;
+
+    // Index the array of fall position
+    static int loseAnimationFrame = 0;
+    // Track the frames per animations
+    static int loseAnimationTimer = 0;
+
+    loseAnimationTimer++;
+    if (loseAnimationTimer >= delayFrames) {
+        loseAnimationTimer = 0;
+        if (loseAnimationFrame < 2) {
+            loseAnimationFrame++;
+        }
+    }
+    // Draw the lose bg.
+    DMANow(3, (volatile void*)climberPal, BG_PALETTE, 256 | DMA_ON);
+    drawFullscreenImage4(losebgBitmap);
+    
+    // Draw the falling climber
+    if (loseAnimationFrame < 3) {
+        climber.y = fallPositions[loseAnimationFrame];
+        drawClimber();
+        drawString4(10, 80, "You fell! Press START", WHITE);
+    }
+    
     waitForVBlank();
-    fillScreen4(RED);  // Fill screen with red for lose state.
     flipPage();
     
+    // When START is pressed go to scoreboard.
     if (BUTTON_PRESSED(BUTTON_START)) {
-        goToStart();
+        loseAnimationFrame = 0;
+        loseAnimationTimer = 0;
+        state = SCOREBOARD;
     }
 }
 
-// ----------------------------------------
-// Utility Function for Page Flipping
-// ----------------------------------------
-void flipPage(void) {
+// Page flipping
+void flipPage() {
     if (REG_DISPCTL & DISP_BACKBUFFER) {
         videoBuffer = BACKBUFFER;
     } else {

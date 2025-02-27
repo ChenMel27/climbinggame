@@ -75,10 +75,6 @@ extern const unsigned short sloperBitmap[512];
 extern const unsigned short sloperPal[256];
 # 9 "hold.h" 2
 
-
-
-
-
 typedef enum {
     PINCH,
     CRIMP,
@@ -91,17 +87,17 @@ typedef struct {
     int width, height;
     int active;
     HoldType type;
+
     int points;
 } HOLD;
-# 39 "hold.h"
-extern HOLD holds[4];
 
 
 
 
+extern HOLD holds[6];
+extern int collectedHolds;
 
 void initHolds();
-void updateHolds();
 void drawHolds();
 # 2 "hold.c" 2
 # 1 "mode4.h" 1
@@ -932,23 +928,15 @@ extern long double strtold (const char *restrict, char **restrict);
 # 9 "hold.c" 2
 
 
-
-
-
-
-# 14 "hold.c"
-HOLD holds[4];
+# 10 "hold.c"
+HOLD holds[6];
 extern int collectedHolds;
 
 
 
-
-
-
 void initHolds() {
-    int presetYValues[4] = {125, 100, 80, 60, 25, 10};
-
-    for (int i = 0; i < 4; i++) {
+    int presetYValues[6] = {125, 100, 80, 60, 25, 10};
+    for (int i = 0; i < 6; i++) {
         holds[i].x = rand() % (240 - 32);
         holds[i].y = presetYValues[i];
         holds[i].width = 32;
@@ -966,7 +954,6 @@ void initHolds() {
     }
 
 
-
     DMANow(3, (volatile void*)pinchPal, ((unsigned short*) 0x05000000), 256 | (1 << 31));
     DMANow(3, (volatile void*)crimpPal, ((unsigned short*) 0x05000000), 256 | (1 << 31));
     DMANow(3, (volatile void*)jugPal, ((unsigned short*) 0x05000000), 256 | (1 << 31));
@@ -977,24 +964,23 @@ void initHolds() {
 
 
 
-
 void drawHolds() {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 6; i++) {
 
         if (i < collectedHolds)
             continue;
 
         const unsigned short *sprite;
         int width = 32, height = 32;
-        if (holds[i].type == PINCH)
+        if (holds[i].type == PINCH) {
             sprite = pinchBitmap;
-        else if (holds[i].type == CRIMP)
+        } else if (holds[i].type == CRIMP) {
             sprite = crimpBitmap;
-        else if (holds[i].type == JUG)
+        } else if (holds[i].type == JUG) {
             sprite = jugBitmap;
-        else
+        } else {
             sprite = sloperBitmap;
-
+        }
         drawImage4(holds[i].x, holds[i].y, width, height, (const u8*)sprite, (((0) & 31) | ((0) & 31) << 5 | ((0) & 31) << 10));
     }
 }

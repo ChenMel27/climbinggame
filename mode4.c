@@ -66,9 +66,9 @@ void fillScreen4(volatile u8 colorIndex) {
 void drawImage4(int x, int y, int width, int height, const u8 *img, u8 transparentI) {
     for (int row = 0; row < height; row++) {
         for (int col = 0; col < width; col++) {
-            u8 pixel = img[row * width + col]; // Get pixel from sprite data
-            
-            if (pixel != transparentI) {  // ✅ Skip transparent pixels (BLACK or chosen color)
+            u8 pixel = img[row * width + col];
+
+            if (pixel != transparentI) {
                 setPixel4(x + col, y + row, pixel);
             }
         }

@@ -8,15 +8,15 @@
 	.eabi_attribute 30, 2
 	.eabi_attribute 34, 0
 	.eabi_attribute 18, 4
-	.file	"climber.c"
+	.file	"stronger.c"
 	.text
-	.global	climberPal
-	.global	climberBitmap
+	.global	strongerPal
+	.global	strongerBitmap
 	.section	.rodata
 	.align	2
-	.type	climberPal, %object
-	.size	climberPal, 512
-climberPal:
+	.type	strongerPal, %object
+	.size	strongerPal, 512
+strongerPal:
 	.short	0
 	.short	14
 	.short	512
@@ -34,7 +34,7 @@ climberPal:
 	.short	32736
 	.short	32767
 	.short	4
-	.short	202
+	.short	7470
 	.short	11
 	.short	15
 	.short	19
@@ -171,7 +171,7 @@ climberPal:
 	.short	5594
 	.short	0
 	.short	0
-	.short	0
+	.short	19038
 	.short	0
 	.short	0
 	.short	0
@@ -202,13 +202,13 @@ climberPal:
 	.short	0
 	.short	0
 	.short	0
-	.short	12684
-	.short	20083
-	.short	4228
-	.short	24311
-	.short	29596
-	.short	14798
-	.short	8456
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
 	.short	0
 	.short	0
 	.short	0
@@ -273,9 +273,9 @@ climberPal:
 	.short	30653
 	.short	31710
 	.short	32767
-	.type	climberBitmap, %object
-	.size	climberBitmap, 1024
-climberBitmap:
+	.type	strongerBitmap, %object
+	.size	strongerBitmap, 1024
+strongerBitmap:
 	.short	0
 	.short	0
 	.short	0
@@ -298,7 +298,6 @@ climberBitmap:
 	.short	0
 	.short	0
 	.short	0
-	.short	-26880
 	.short	0
 	.short	0
 	.short	0
@@ -314,8 +313,6 @@ climberBitmap:
 	.short	0
 	.short	0
 	.short	0
-	.short	514
-	.short	2
 	.short	0
 	.short	0
 	.short	0
@@ -327,11 +324,62 @@ climberBitmap:
 	.short	0
 	.short	0
 	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	22528
+	.short	22528
+	.short	22528
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	-23552
+	.short	-23388
+	.short	0
+	.short	0
+	.short	22528
+	.short	22616
+	.short	22616
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	-23552
 	.short	-23388
 	.short	164
-	.short	21248
-	.short	21331
-	.short	21331
+	.short	0
+	.short	22528
+	.short	22616
+	.short	22616
 	.short	0
 	.short	0
 	.short	0
@@ -341,45 +389,31 @@ climberBitmap:
 	.short	0
 	.short	0
 	.short	0
-	.short	0
-	.short	0
+	.short	-23552
 	.short	-23388
-	.short	-23388
-	.short	256
-	.short	257
-	.short	257
 	.short	0
 	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	-23388
-	.short	164
 	.short	-23552
 	.short	4516
 	.short	4369
 	.short	0
-	.short	-23388
-	.short	164
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
 	.short	0
 	.short	0
 	.short	-23388
 	.short	164
-	.short	8192
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	-23552
+	.short	-23388
+	.short	0
+	.short	0
+	.short	17152
 	.short	4516
 	.short	4369
+	.short	0
+	.short	0
 	.short	-23552
 	.short	-23388
 	.short	164
@@ -387,15 +421,15 @@ climberBitmap:
 	.short	0
 	.short	0
 	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	-23388
-	.short	164
 	.short	-23552
+	.short	-23388
+	.short	0
+	.short	0
+	.short	-23552
+	.short	4366
 	.short	4516
-	.short	4516
+	.short	0
+	.short	0
 	.short	0
 	.short	-23388
 	.short	164
@@ -403,74 +437,72 @@ climberBitmap:
 	.short	0
 	.short	0
 	.short	0
+	.short	-23552
+	.short	-23388
 	.short	0
+	.short	86
+	.short	-26112
+	.short	4366
+	.short	4516
 	.short	0
-	.short	0
+	.short	22102
 	.short	0
 	.short	-23388
 	.short	164
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	-23552
+	.short	-23388
+	.short	22016
+	.short	22102
 	.short	4352
-	.short	4369
-	.short	4516
-	.short	0
-	.short	-23388
-	.short	164
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	-23388
-	.short	164
-	.short	4352
-	.short	4369
+	.short	4366
 	.short	85
-	.short	0
+	.short	22016
+	.short	22102
+	.short	86
 	.short	-23388
 	.short	164
 	.short	0
 	.short	0
 	.short	0
 	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
+	.short	26880
 	.short	26985
-	.short	22121
-	.short	8278
-	.short	22048
-	.short	8278
-	.short	22048
+	.short	22102
+	.short	22102
+	.short	22102
+	.short	2056
+	.short	2056
+	.short	22102
+	.short	22102
+	.short	22102
 	.short	-23388
 	.short	164
 	.short	0
 	.short	0
 	.short	0
 	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
+	.short	22016
 	.short	22102
 	.short	22102
-	.short	8278
-	.short	22048
-	.short	8278
-	.short	22048
+	.short	22102
+	.short	22102
+	.short	2056
+	.short	2056
+	.short	22102
+	.short	22102
+	.short	22102
 	.short	26985
 	.short	105
 	.short	0
 	.short	0
 	.short	0
 	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
+	.short	22016
+	.short	22102
 	.short	22102
 	.short	22102
 	.short	5206
@@ -478,15 +510,15 @@ climberBitmap:
 	.short	5140
 	.short	22036
 	.short	22102
+	.short	22102
+	.short	22102
 	.short	86
 	.short	0
 	.short	0
 	.short	0
 	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
+	.short	22016
+	.short	22102
 	.short	22102
 	.short	22102
 	.short	5206
@@ -494,21 +526,23 @@ climberBitmap:
 	.short	5153
 	.short	22036
 	.short	22102
+	.short	22102
+	.short	22102
 	.short	86
 	.short	0
 	.short	0
 	.short	0
 	.short	0
 	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
+	.short	22016
+	.short	21846
+	.short	21845
 	.short	8533
 	.short	8481
 	.short	8481
 	.short	21793
+	.short	21845
+	.short	21845
 	.short	22102
 	.short	86
 	.short	0
@@ -517,6 +551,20 @@ climberBitmap:
 	.short	0
 	.short	0
 	.short	0
+	.short	21760
+	.short	21845
+	.short	4693
+	.short	4626
+	.short	4626
+	.short	21778
+	.short	22016
+	.short	86
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
+	.short	0
 	.short	0
 	.short	0
 	.short	0
@@ -537,26 +585,10 @@ climberBitmap:
 	.short	0
 	.short	0
 	.short	0
-	.short	4693
+	.short	4675
 	.short	4626
 	.short	4626
-	.short	21778
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	4640
-	.short	4626
-	.short	4626
-	.short	8210
+	.short	17170
 	.short	103
 	.short	0
 	.short	0
@@ -747,38 +779,6 @@ climberBitmap:
 	.short	-26986
 	.short	-26986
 	.short	17
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
-	.short	0
 	.short	0
 	.short	0
 	.short	0

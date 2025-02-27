@@ -47,20 +47,22 @@ typedef volatile struct {
 void DMANow(int channel, volatile void* src, volatile void* dest, unsigned int ctrl);
 # 5 "boulder.h" 2
 
-
 typedef struct {
-    int x, y;
-    int oldX, oldY;
-    int dx, dy;
-    int width, height;
+    int x;
+    int y;
+    int oldX;
+    int oldY;
+    int dx;
+    int dy;
+    int width;
+    int height;
     unsigned short color;
 } BOULDER;
 
 
 
 
-
-extern BOULDER boulders[2];
+extern BOULDER boulders[3];
 
 
 void initBoulders();
@@ -151,42 +153,37 @@ void drawHolds();
 # 6 "game.h" 2
 
 
-
-
-
-typedef struct {
-    int x, y;
-    int oldX, oldY;
-    int dx, dy;
-    int width, height;
-} CLIMBER;
-# 28 "game.h"
-extern CLIMBER climber;
 extern int score;
 extern int round;
 
-
-
-
-
-void initGame();
-void updateGame();
-void drawGame();
-
-void initClimber();
-void updateClimber();
+typedef struct {
+    int x;
+    int y;
+    int oldX;
+    int oldY;
+    int dx;
+    int dy;
+    int width;
+    int height;
+    int stronger;
+} CLIMBER;
+extern CLIMBER climber;
 void drawClimber();
 void resetGame();
 int checkWinCondition();
+void initGame();
+void updateGame();
+void drawGame();
+void initClimber();
+void updateClimber();
 # 5 "boulder.c" 2
 
-BOULDER boulders[2];
 
-
+BOULDER boulders[3];
 
 
 void initBoulders() {
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
         boulders[i].x = rand() % 240;
         boulders[i].y = rand() % 30;
         boulders[i].dx = 0;
@@ -199,12 +196,9 @@ void initBoulders() {
 
 
 
-
 void updateBoulders() {
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
         boulders[i].y += boulders[i].dy;
-
-
         if (checkBoulderCollision(climber.x + 5, climber.y, 16, 32)) {
             goToLose();
             return;
@@ -219,10 +213,8 @@ void updateBoulders() {
 }
 
 
-
-
 int checkBoulderCollision(int x, int y, int width, int height) {
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
         if (x < boulders[i].x + boulders[i].width &&
             x + width > boulders[i].x &&
             y < boulders[i].y + boulders[i].height &&
@@ -235,9 +227,8 @@ int checkBoulderCollision(int x, int y, int width, int height) {
 
 
 
-
 void drawBoulders() {
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
         drawRect4(boulders[i].x, boulders[i].y, boulders[i].width, boulders[i].height, boulders[i].color);
     }
 }

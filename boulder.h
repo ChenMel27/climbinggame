@@ -3,19 +3,21 @@
 
 #include "gba.h"
 
-// Structs
 typedef struct {
-    int x, y;
-    int oldX, oldY;
-    int dx, dy;
-    int width, height;
+    int x;
+    int y;
+    int oldX;
+    int oldY;
+    int dx;
+    int dy;
+    int width;
+    int height;
     unsigned short color;
 } BOULDER;
 
-// Constants
-#define BOULDERCOUNT 2  // Number of boulders
+// The numbers of boulders on screen at a one time
+#define BOULDERCOUNT 3
 
-// Global Variables
 extern BOULDER boulders[BOULDERCOUNT];
 
 // Function Prototypes

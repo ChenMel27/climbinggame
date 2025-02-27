@@ -1293,20 +1293,22 @@ extern const unsigned short startPal[256];
 
 
 
-
 typedef struct {
-    int x, y;
-    int oldX, oldY;
-    int dx, dy;
-    int width, height;
+    int x;
+    int y;
+    int oldX;
+    int oldY;
+    int dx;
+    int dy;
+    int width;
+    int height;
     unsigned short color;
 } BOULDER;
 
 
 
 
-
-extern BOULDER boulders[2];
+extern BOULDER boulders[3];
 
 
 void initBoulders();
@@ -1348,10 +1350,6 @@ extern const unsigned short sloperBitmap[512];
 extern const unsigned short sloperPal[256];
 # 9 "hold.h" 2
 
-
-
-
-
 typedef enum {
     PINCH,
     CRIMP,
@@ -1364,78 +1362,97 @@ typedef struct {
     int width, height;
     int active;
     HoldType type;
+
     int points;
 } HOLD;
-# 39 "hold.h"
-extern HOLD holds[4];
 
 
 
 
+extern HOLD holds[6];
+extern int collectedHolds;
 
 void initHolds();
-void updateHolds();
 void drawHolds();
 # 6 "game.h" 2
 
 
-
-
+extern int score;
+extern int gameRound;
 
 typedef struct {
-    int x, y;
-    int oldX, oldY;
-    int dx, dy;
-    int width, height;
+    int x;
+    int y;
+    int oldX;
+    int oldY;
+    int dx;
+    int dy;
+    int width;
+    int height;
+    int stronger;
 } CLIMBER;
-# 28 "game.h"
 extern CLIMBER climber;
-extern int score;
-extern int round;
-
-
-
-
-
-void initGame();
-void updateGame();
-void drawGame();
-
-void initClimber();
-void updateClimber();
 void drawClimber();
 void resetGame();
 int checkWinCondition();
+void initGame();
+void updateGame();
+void drawGame();
+void initClimber();
+void updateClimber();
 # 7 "main.c" 2
 
+# 1 "losebg.h" 1
+# 21 "losebg.h"
+extern const unsigned short losebgBitmap[19200];
 
 
-void initialize(void);
-void goToStart(void);
-void start(void);
-void goToGame(void);
-void game(void);
-void goToPause(void);
-void pause(void);
-void goToWin(void);
-void win(void);
-void goToLose(void);
-void lose(void);
-void flipPage(void);
+extern const unsigned short losebgPal[256];
+# 9 "main.c" 2
+# 1 "climber.h" 1
+# 21 "climber.h"
+extern const unsigned short climberBitmap[512];
 
+
+extern const unsigned short climberPal[256];
+# 10 "main.c" 2
+
+void initialize();
+void goToStart();
+void start();
+void goToGame();
+void resumeGame();
+void game();
+void goToPause();
+void pause();
+void goToLevelUp();
+void levelUp();
+void goToWin();
+void win();
+void goToLose();
+void lose();
+void scoreboard();
+void flipPage();
 
 char buffer[41];
+
+
+extern int score;
+extern int highScore;
 
 
 enum {
     START,
     GAME,
     PAUSE,
+
+    LEVEL_UP,
     WIN,
-    LOSE
+    LOSE,
+
+    SCOREBOARD
 };
 int state;
-
 
 unsigned short buttons;
 unsigned short oldButtons;
@@ -1443,9 +1460,7 @@ unsigned short oldButtons;
 
 
 
-
-
-int main(void) {
+int main() {
     initialize();
     while (1) {
         oldButtons = buttons;
@@ -1454,48 +1469,44 @@ int main(void) {
             case START: start(); break;
             case GAME: game(); break;
             case PAUSE: pause(); break;
+            case LEVEL_UP: levelUp(); break;
             case WIN: win(); break;
             case LOSE: lose(); break;
+            case SCOREBOARD: scoreboard(); break;
         }
     }
 }
 
-
-
-
-void initialize(void) {
-
+void initialize() {
     (*(volatile unsigned short*) 0x04000000) = ((4) & 7) | (1 << (8 + (2 % 4))) | (1 << 4);
     buttons = (*(volatile unsigned short*) 0x04000130);
     oldButtons = 0;
-
-
     initGame();
 
 
     goToStart();
 }
 
-
-
-
-void goToStart(void) {
+void goToStart() {
 
     score = 0;
-
     resetGame();
 
 
     DMANow(3, (volatile void*)startPal, ((unsigned short*) 0x05000000), 256 | (1 << 31));
     drawFullscreenImage4(startBitmap);
+
+
     drawString4(10, 20, "Train like Adam Ondra", (((31) & 31) | ((31) & 31) << 5 | ((31) & 31) << 10));
     drawString4(10, 50, "On belay?", (((31) & 31) | ((31) & 31) << 5 | ((31) & 31) << 10));
+
     waitForVBlank();
     flipPage();
+
     state = START;
 }
 
-void start(void) {
+void start() {
     waitForVBlank();
     if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
         fillScreen4((((0) & 31) | ((0) & 31) << 5 | ((0) & 31) << 10));
@@ -1504,7 +1515,27 @@ void start(void) {
     }
 }
 
-void goToGame(void) {
+void scoreboard() {
+    char buffer[41];
+    fillScreen4((((0) & 31) | ((0) & 31) << 5 | ((0) & 31) << 10));
+
+
+    sprintf(buffer, "Score: %d", score);
+    drawString4(10, 10, buffer, (((31) & 31) | ((31) & 31) << 5 | ((31) & 31) << 10));
+    sprintf(buffer, "High Score: %d", highScore);
+    drawString4(10, 30, buffer, (((31) & 31) | ((31) & 31) << 5 | ((31) & 31) << 10));
+    drawString4(10, 50, "Press START to play again", (((31) & 31) | ((31) & 31) << 5 | ((31) & 31) << 10));
+
+    waitForVBlank();
+    flipPage();
+
+
+    if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
+        goToGame();
+    }
+}
+
+void goToGame() {
     waitForVBlank();
     fillScreen4((((0) & 31) | ((0) & 31) << 5 | ((0) & 31) << 10));
     flipPage();
@@ -1512,69 +1543,126 @@ void goToGame(void) {
     state = GAME;
 }
 
-void game(void) {
+
+void resumeGame() {
+    waitForVBlank();
+    flipPage();
+    state = GAME;
+}
+
+void game() {
     updateGame();
     drawGame();
     waitForVBlank();
     flipPage();
+
+    if (0) {
+        goToLevelUp();
+    }
 
     if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
         goToPause();
     }
 }
 
-void goToPause(void) {
+void goToPause() {
     waitForVBlank();
     flipPage();
     state = PAUSE;
 }
 
-void pause(void) {
+void pause() {
+    fillScreen4((((0) & 31) | ((0) & 31) << 5 | ((0) & 31) << 10));
+    drawString4(80, 60, "Paused", (((31) & 31) | ((31) & 31) << 5 | ((31) & 31) << 10));
     waitForVBlank();
+    flipPage();
+
+
     if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
-        goToGame();
-    } else if ((!(~(oldButtons) & ((1 << 2))) && (~(buttons) & ((1 << 2))))) {
-        goToStart();
+        resumeGame();
+    }
+
+}
+
+void goToLevelUp() {
+    waitForVBlank();
+    flipPage();
+    state = LEVEL_UP;
+}
+
+void levelUp() {
+    waitForVBlank();
+    fillScreen4((((0) & 31) | ((0) & 31) << 5 | ((0) & 31) << 10));
+    drawString4(80, 80, "Flashed! Press START for the next round.", (((31) & 31) | ((31) & 31) << 5 | ((31) & 31) << 10));
+    flipPage();
+
+    if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
+        resumeGame();
     }
 }
 
-void goToWin(void) {
+void goToWin() {
     waitForVBlank();
     flipPage();
     state = WIN;
-
-    drawString4(50, 80, "WIN! Press START to continue", 1);
     waitForVBlank();
 }
 
-void win(void) {
+void win() {
     waitForVBlank();
-
     if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
          state = GAME;
     }
 }
 
-void goToLose(void) {
+void goToLose() {
     waitForVBlank();
     flipPage();
     state = LOSE;
 }
 
-void lose(void) {
+void lose() {
+
+    const int fallPositions[3] = { 10, 60, 100 };
+
+    const int delayFrames = 15;
+
+
+    static int loseAnimationFrame = 0;
+
+    static int loseAnimationTimer = 0;
+
+    loseAnimationTimer++;
+    if (loseAnimationTimer >= delayFrames) {
+        loseAnimationTimer = 0;
+        if (loseAnimationFrame < 2) {
+            loseAnimationFrame++;
+        }
+    }
+
+    DMANow(3, (volatile void*)climberPal, ((unsigned short*) 0x05000000), 256 | (1 << 31));
+    drawFullscreenImage4(losebgBitmap);
+
+
+    if (loseAnimationFrame < 3) {
+        climber.y = fallPositions[loseAnimationFrame];
+        drawClimber();
+        drawString4(10, 80, "You fell! Press START", (((31) & 31) | ((31) & 31) << 5 | ((31) & 31) << 10));
+    }
+
     waitForVBlank();
-    fillScreen4((((31) & 31) | ((0) & 31) << 5 | ((0) & 31) << 10));
     flipPage();
 
+
     if ((!(~(oldButtons) & ((1 << 3))) && (~(buttons) & ((1 << 3))))) {
-        goToStart();
+        loseAnimationFrame = 0;
+        loseAnimationTimer = 0;
+        state = SCOREBOARD;
     }
 }
 
 
-
-
-void flipPage(void) {
+void flipPage() {
     if ((*(volatile unsigned short*) 0x04000000) & (1 << 4)) {
         videoBuffer = ((unsigned short*) 0x0600A000);
     } else {
